@@ -21,4 +21,8 @@ describe('countPossibleSecrets', () => {
   it('returns 0 when length > base', () => {
     expect(countPossibleSecrets(5, 2)).toBe(0);
   });
+
+  it('is stable across repeated calls (memoized)', () => {
+    expect(countPossibleSecrets(4, 10)).toBe(countPossibleSecrets(4, 10));
+  });
 });
