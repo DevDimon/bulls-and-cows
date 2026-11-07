@@ -25,14 +25,42 @@ export const createGameState = (
   base: number,
   random?: () => number,
   now: number = Date.now(),
-): GameState => {
-  throw new Error('Not implemented');
-};
+): GameState => ({
+  secret: generateSecret(length, base, random),
+  length,
+  base,
+  history: [],
+  status: 'playing',
+  startTime: now,
+});
 
 export const applyGuess = (
   state: GameState,
   guess: string,
   now: number = Date.now(),
 ): GameState => {
-  throw new Error('Not implemented');
+  if (state.status !== 'playing') {
+    return state;
+  }
+  if (!isValidGuess(guess, state.length, state.base)) {
+    return state;
+  }
+
+  const normalized = guess.toLowerCase();
+  const alreadyTried = state.history.some((a) => a.guess === normalized);
+  if (alreadyTried) {
+    return state;
+  }
+
+  const { bulls, cows } = evaluateGuess(state.secret, normalized);
+  const attempt: Attempt = { guess: normalized, bulls, cows };
+  const newHistory = [...state.history, attempt];
+  const won = bulls === state.length;
+
+  return {
+    ...state,
+    history: newHistory,
+    status: won ? 'won' : 'playing',
+    endTime: won ? now : undefined,
+  };
 };
