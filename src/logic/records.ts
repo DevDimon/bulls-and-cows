@@ -10,9 +10,20 @@ const STORAGE_KEY = 'bulls-and-cows-records';
 const MAX_RECORDS = 10;
 
 export const loadRecords = (): RecordEntry[] => {
-  throw new Error('Not implemented');
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? (JSON.parse(raw) as RecordEntry[]) : [];
+  } catch {
+    return [];
+  }
 };
 
 export const saveRecord = (entry: RecordEntry): RecordEntry[] => {
-  throw new Error('Not implemented');
+  const updated = [...loadRecords(), entry]
+    .sort((a, b) => (a.attempts !== b.attempts ? a.attempts - b.attempts : a.timeMs - b.timeMs))
+    .slice(0, MAX_RECORDS);
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+  } catch {}
+  return updated;
 };
